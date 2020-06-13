@@ -1,19 +1,25 @@
 package plibss.PLIBSSServer.DAO;
 
+import jdk.nashorn.internal.parser.Token;
 import plibss.PLIBSSServer.Mysql;
 import plibss.core.model.Library;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class LibraryDAO {
     private static final String SQL_SELECT = "SELECT * FROM `도서관 정보`";
-    private LibraryDAO() {}
+
+    private LibraryDAO() {
+    }
+
     private static class LazyHolder {
         public static final LibraryDAO INSTANCE = new LibraryDAO();
     }
+
     public static LibraryDAO getInstance() {
         return LazyHolder.INSTANCE;
     }
@@ -48,7 +54,7 @@ public class LibraryDAO {
 
         ResultSet resultSet = mysql.select();
         Vector<Library> vector = new Vector<Library>();
-        while (resultSet.next()){
+        while (resultSet.next()) {
             vector.add(match(resultSet));
         }
         return vector.toArray(new Library[0]);
@@ -59,12 +65,13 @@ public class LibraryDAO {
     public Library getLibrary(String lid) throws IOException, SQLException, Exception {
         Mysql mysql = Mysql.getConnection();
         mysql.sql(SQL_SELECT + "WHERE `도서관id` = ?");
-        mysql.set(1,lid);
+        mysql.set(1, lid);
         ResultSet resultSet = mysql.select();
-        while (resultSet.next())
-        {
+        while (resultSet.next()) {
             return match(resultSet);
         }
         return null;
     }
+
+
 }

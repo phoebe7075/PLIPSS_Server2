@@ -31,8 +31,8 @@ public class Protocol {
     public static final int TYPE_LABRARY_UPDATE_RES = 11;  // 도서관 정보 수정 응답
     public static final int TYPE_LABRARY_DELETE_REQ = 12;  // 도서관 정보 삭제 요청
     public static final int TYPE_LABRARY_DELETE_RES = 13;  // 도서관 정보 삭제 응답
-    public static final int TYPE_LABRARY_LIST_INFO_REQ = 14;  // 도서관 목록 조회 요청
-    public static final int TYPE_LABRARY_LIST_INFO_RES = 15;  // 도서관 목록 조회 응답
+    public static final int TYPE_LABRARY_LIST_INFO_REQ = 14;  // 도서관 검색목록 조회 요청
+    public static final int TYPE_LABRARY_LIST_INFO_RES = 15;  // 도서관 검색목록 조회 응답
     public static final int TYPE_LABRARY_DETAILS_INFO_REQ = 16;  // 도서관 세부정보 조회 요청
     public static final int TYPE_LABRARY_DETAILS_INFO_RES = 17;  // 도서관 세부정보 조회 응답
 

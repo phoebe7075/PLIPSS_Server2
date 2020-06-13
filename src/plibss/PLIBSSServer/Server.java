@@ -7,16 +7,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.sun.xml.internal.ws.policy.EffectiveAlternativeSelector;
 import plibss.PLIBSSServer.DAO.*;
 import plibss.core.Protocol;
 import plibss.PLIBSSServer.Mysql;
-import plibss.core.model.Book;
-import plibss.core.model.Library;
-import plibss.core.model.Libraryf;
+import plibss.core.model.*;
 
 public class Server {
 	private final static int PORT = 9999;
@@ -105,19 +108,16 @@ public class Server {
 						case Protocol.TYPE_LOGOUT_REQ:
 							logout(protocol);
 							break;
-						case Protocol.TYPE_USER_INFO_REQ:
-							//getUserInfo(protocol);
-							break;
-						case Protocol.TYPE_LABRARY_LIST_INFO_REQ:
+						case Protocol.TYPE_LABRARY_LIST_INFO_REQ: //검색조건으로 조회하는 경우
 							getLibraryInfo(protocol);
 							break;
-						case Protocol.TYPE_LABRARY_DETAILS_INFO_REQ:
+						case Protocol.TYPE_LABRARY_DETAILS_INFO_REQ: //특정 도서관만 조회하는 경우
 							getLibraryDetailsInfo(protocol);
 							break;
-						case Protocol.TYPE_BOOK_LIST_INFO_REQ:
+						case Protocol.TYPE_BOOK_LIST_INFO_REQ: //검색조건으로 조회하는 경우
 							getBookInfo(protocol);
 							break;
-						case Protocol.TYPE_BOOK_DETAILS_INFO_REQ:
+						case Protocol.TYPE_BOOK_DETAILS_INFO_REQ: //특정 도서만 조회하는 경우
 							getBookDetailsInfo(protocol);
 							break;
 						case Protocol.TYPE_LABRARY_FAVORITEINFO_ENROLL_REQ:
@@ -130,13 +130,13 @@ public class Server {
 							getLibFavorites(protocol);
 							break;
 						case Protocol.TYPE_BOOK_FAVORITEINFO_ENROLL_REQ:
-							//createBookFavorite(protocol);
+							createBookFavorite(protocol);
 							break;
 						case Protocol.TYPE_BOOK_FAVORITEINFO_DELETE_REQ:
-							//deleteBookFavorite(protocol);
+							deleteBookFavorite(protocol);
 							break;
 						case Protocol.TYPE_BOOK_FAVORITEINFO_INFO_REQ:
-							//getBookFavorite(protocol);
+							getBookFavorite(protocol);
 							break;
 						case Protocol.TYPE_BOOK_BORROW_POSSIBILITY_REQ:
 							//getBookPossibility(protocol);
@@ -220,20 +220,65 @@ public class Server {
 		}
 
 
-		// 도서관 전체 정보 조회
-		private void getLibraryInfo(Protocol rcvData)throws IOException, SQLException, Exception {
+		//도서관 검색 정보 조회
+		private void getLibraryInfo(Protocol rcvData) throws IOException, SQLException, Exception{
 			LibraryDAO libraryDAO = LibraryDAO.getInstance();
-			Library[] libraries = libraryDAO.getLibraries();
+			StringTokenizer token1 = new StringTokenizer((String) rcvData.getBody(),"/");
+			Library[] libraries1 = libraryDAO.getLibraries();
+			Vector<Library> arr = new Vector<Library>();
+			String[] scon= new String[4]; // /로 구분되는 정보
+			String[] key = new String[4];
+			String[] value = new String[4];
+			String[] context = new String[4];
+			int idx = 0;
+			while (token1.hasMoreTokens()) {
+				scon[idx] = token1.nextToken();
+				idx++;
+			}
+
+			for (int i =0; i < 4; i++)
+			{
+				StringTokenizer token2 = new StringTokenizer(scon[i],":");
+				key[i] = token2.nextToken();
+				value[i] = token2.nextToken();
+			}
+			for(Library lib : libraries1) //전체 도서관에서 한 도서관씩 정보를 찾는다.
+			{
+				context[0] = lib.getLname();
+				context[1] = lib.getCname();
+				context[2] = lib.getDistrictname();
+				context[3] = lib.getLtype();
+
+				boolean isExist =true;
+				for (int i=0; i<4; i++) {
+					if (value != null) //상세조건을 기술한 조건에 대해 검색
+					{
+						Pattern pt = Pattern.compile(value[i],Pattern.CASE_INSENSITIVE ); //일부라도 일치하는 조건을 찾기 위함
+						Matcher ptmatcher = pt.matcher(context[i]);
+						if(!ptmatcher.find()) //만약 적은 검색조건에서 하나라도 맞는 칼럼이 존재하지 않는다면
+						{
+							isExist = false;
+							break; //조건문 종료
+						}
+					}
+				}
+
+				if (isExist) //방금 조건문에서 모두 통과하여 칼럼이 존재 할때.
+				{
+					arr.add(lib); //벡터 리스트에 추가.
+				}
+			}
 
 			Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_LIST_INFO_RES,1);
-			sndData.setBody(libraries);
+			sndData.setBody(arr.toArray(new Library[0]));
 			os.write(sndData.getPacket());
 		}
 
 		//도서관 세부정보 조회
 		private void getLibraryDetailsInfo(Protocol rcvData) throws IOException, SQLException, Exception{
 			LibraryDAO libraryDAO = LibraryDAO.getInstance();
-			Library library = libraryDAO.getLibrary(userID);
+			String lid = (String) rcvData.getBody();
+			Library library = libraryDAO.getLibrary(lid);
 
 			if(library == null) //도서관 정보가 존재하지 않을 때
 			{
@@ -247,14 +292,58 @@ public class Server {
 			os.write(sndData.getPacket());
 		}
 
-		// 도서 목록 조회
-		private void getBookInfo(Protocol rcvData) throws IOException, SQLException, Exception {
+		// 도서 검색정보 조회
+		private void getBookInfo(Protocol rcvData) throws IOException, SQLException, Exception{
 			BookDAO bookDAO = BookDAO.getInstance();
-			String lid = (String) rcvData.getBody();
-			Book[] books = bookDAO.getBooks(lid);
+			StringTokenizer token1 = new StringTokenizer((String) rcvData.getBody(),"/");
+
+			Vector<Book> arr = new Vector<Book>();
+			String[] scon= new String[4]; // /로 구분되는 정보
+			String[] key = new String[4];
+			String[] value = new String[4];
+			String[] context = new String[3]; //도서관 id는 제외함. 필요하지않음
+			int idx = 0;
+			while (token1.hasMoreTokens()) {
+				scon[idx] = token1.nextToken();
+				idx++;
+			}
+
+			for (int i =0; i < 4; i++)
+			{
+				StringTokenizer token2 = new StringTokenizer(scon[i],":");
+				key[i] = token2.nextToken();
+				value[i] = token2.nextToken();
+			}
+
+			Book[] books = bookDAO.getBooks(value[0]); // 첫번째 조건은 도서관id. 무조건 있어야 함. 그래서 나중 검색에도 제외됨
+
+			for (Book bk : books)
+			{
+				context[0] = bk.getBname();
+				context[1] = bk.getAuthorn();
+				context[2] = bk.getKdc();
+				boolean isExist =true;
+
+				for (int i=0; i<3; i++) {
+					if (value != null) //상세조건을 기술한 조건에 대해 검색
+					{
+						Pattern pt = Pattern.compile(value[i+1],Pattern.CASE_INSENSITIVE); //일부라도 일치하는 조건을 찾기 위함
+						Matcher ptmatcher = pt.matcher(context[i]);
+						if(!ptmatcher.find()) //만약 적은 검색조건에서 하나라도 맞는 칼럼이 존재하지 않는다면
+						{
+							isExist = false;
+							break; //조건문 종료
+						}
+					}
+				}
+				if (isExist) //방금 조건문에서 모두 통과하여 칼럼이 존재 할때.
+				{
+					arr.add(bk); //벡터 리스트에 추가.
+				}
+			}
 
 			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_LIST_INFO_RES,1);
-			sndData.setBody(books);
+			sndData.setBody(arr.toArray(new Book[0]));
 			os.write(sndData.getPacket());
 		}
 
@@ -275,6 +364,8 @@ public class Server {
 			sndData.setBody(bk2);
 			os.write(sndData.getPacket());
 		}
+
+
 
 		// 도서관 즐겨찾기 추가
 		private void createLibFavorite(Protocol rcvData) throws IOException, SQLException, Exception {
@@ -299,16 +390,16 @@ public class Server {
 		// 도서관 즐겨찾기 제거
 		private void deleteLibFavorite(Protocol rcvData) throws IOException, SQLException, Exception {
 			LibraryfDAO DAO = LibraryfDAO.getInstance();
-			String lid = (String) rcvData.getBody();
+			Libraryf lif = (Libraryf) rcvData.getBody();
 
-			Libraryf libraryf = DAO.getFavorite(userID,lid);
+			Libraryf libraryf = DAO.getFavorite(userID,lif.getLid());
 			if (libraryf == null) // 삭제하고자 하는 도서관 즐겨찾기 정보가 없다면 실패.
 			{
 				Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_FAVORITEINFO_DELETE_RES, 0);
 				os.write(sndData.getPacket());
 				return;
 			}
-			DAO.deleteFavorite(new Libraryf(userID,lid));
+			DAO.deleteFavorite(lif);
 
 			Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_FAVORITEINFO_DELETE_RES, 1);
 			os.write(sndData.getPacket());
@@ -329,6 +420,58 @@ public class Server {
 			sndData.setBody(libraryfs);
 			os.write(sndData.getPacket());
 
+		}
+
+		// 도서 즐겨찾기 정보 등록
+		private void createBookFavorite(Protocol rcvData)throws IOException, SQLException, Exception {
+			Bookf bookf = new Bookf();
+			bookf = (Bookf) rcvData.getBody();
+
+			BookfDAO dao = BookfDAO.getInstance();
+			Bookf bf = dao.getFavorite(userID,bookf.getLid(),bookf.getBname());
+			if(bf != null) //도서 즐겨찾기 정보가 이미 존재하는 경우
+			{
+				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_ENROLL_RES,0);
+				os.write(sndData.getPacket());
+				return;
+			}
+			dao.insertFavorite(bookf);
+			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_ENROLL_RES,1);
+			os.write(sndData.getPacket());
+		}
+
+		// 도서 즐겨찾기 정보 삭제
+		private void deleteBookFavorite(Protocol rcvData) throws IOException, SQLException, Exception{
+			Bookf bookf = new Bookf();
+			bookf = (Bookf) rcvData.getBody();
+
+			BookfDAO DAO = BookfDAO.getInstance();
+			Bookf bf = DAO.getFavorite(userID,bookf.getLid(),bookf.getBname());
+
+			if(bf == null) //삭제하고자 하는 정보가 없다면 실패.
+			{
+				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_DELETE_RES,0);
+				os.write(sndData.getPacket());
+				return;
+			}
+			DAO.deleteFavorite(bookf);
+			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_DELETE_RES,1);
+			os.write(sndData.getPacket());
+		}
+
+		private void getBookFavorite(Protocol rcvData)  throws IOException, SQLException, Exception {
+			BookfDAO DAO = BookfDAO.getInstance();
+			Bookf[] bookfs = DAO.getFavorites(userID);
+
+			if(bookfs.length == 0)
+			{
+				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_INFO_RES,0);
+				os.write(sndData.getPacket());
+				return;
+			}
+			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_INFO_RES,1);
+			sndData.setBody(bookfs);
+			os.write(sndData.getPacket());
 		}
 	}
 }

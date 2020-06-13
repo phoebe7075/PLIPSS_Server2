@@ -3,6 +3,7 @@ package plibss.PLIBSSServer.DAO;
 import plibss.PLIBSSServer.Mysql;
 import plibss.core.model.Book;
 import plibss.core.model.Bookf;
+import plibss.core.model.Libraryf;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -58,5 +59,18 @@ public class BookfDAO {
         mysql.set(2,bookf.getLid());
         mysql.set(3, bookf.getBname());
         mysql.delete();
+    }
+
+    public Bookf getFavorite(String uid, String lid, String bname)throws IOException, SQLException, Exception {
+        Mysql mysql = Mysql.getConnection();
+        mysql.sql(SQL_SELECT + "WHERE `사용자id` = ? AND `도서관id` = ? AND `도서명` = ?");
+        mysql.set(1,uid);
+        mysql.set(2,lid);
+        mysql.set(3,bname);
+        ResultSet rs = mysql.select();
+        while (rs.next()){
+            return match(rs);
+        }
+        return null;
     }
 }
