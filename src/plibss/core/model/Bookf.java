@@ -4,6 +4,7 @@ public class Bookf implements Serializable{
 	private String userid;
 	private String Lid;
 	private String Bname;
+	private boolean possibility;
 
 	public Bookf() {
 	}
@@ -31,5 +32,13 @@ public class Bookf implements Serializable{
 	}
 	public void setBname(String bname) {
 		Bname = bname;
+	}
+
+	public boolean isPossibility() {
+		return possibility;
+	}
+
+	public void setPossibility(boolean possibility) {
+		this.possibility = possibility;
 	}
 }
