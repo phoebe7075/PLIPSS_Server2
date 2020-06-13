@@ -191,6 +191,7 @@ public class Server {
 		}
 
 		private void login(Protocol rcvData) throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 로그인 메시지");
 			String[] str = (String[]) rcvData.getBody();
 			Mysql mysql = Mysql.getConnection();
 			mysql.sql("SELECT `아이디`, `패스워드`, `이름` FROM `유저` WHERE `아이디` = ?");
@@ -214,6 +215,7 @@ public class Server {
 		}
 
 		private void logout(Protocol rcvData) throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 로그아웃 메시지");
 			this.userID = "";
 			Protocol sndData = new Protocol(Protocol.TYPE_LOGOUT_RES, 1);
 			os.write(sndData.getPacket());
@@ -472,6 +474,29 @@ public class Server {
 			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_INFO_RES,1);
 			sndData.setBody(bookfs);
 			os.write(sndData.getPacket());
+		}
+
+		private void getBookPossibility(Protocol rcvData) throws  IOException, SQLException, Exception {
+			BorrowDAO borrowDAO = BorrowDAO.getInstance();
+			BookfDAO bookfDAO = BookfDAO.getInstance();
+
+			Bookf[] bookfs = bookfDAO.getFavorites(userID);
+
+			int idx = 0;
+			for(Bookf bf : bookfs)
+			{
+				if (borrowDAO.getBorrowState(bf.getLid(),bf.getBname())) //대출 가능하다면
+				{
+					bookfs[idx].setPossibility(true);
+				}
+				else
+				{
+					bookfs[idx].setPossibility(false);
+				}
+				idx++;
+			}
+			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_BORROW_POSSIBILITY_RES,1);
+
 		}
 	}
 }
