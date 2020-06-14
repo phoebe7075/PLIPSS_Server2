@@ -22,46 +22,30 @@ public class Protocol {
     public static final int TYPE_LOGIN_RES = 3; // 로그인 응답
     public static final int TYPE_LOGOUT_REQ = 4; // 로그아웃 요청
     public static final int TYPE_LOGOUT_RES = 5; // 로그인 응답
-    public static final int TYPE_USER_INFO_REQ = 6; // 회원정보 요청 (단일, 자기자신)
-    public static final int TYPE_USER_INFO_RES = 7; // 회원정보 응답 (단일, 자기자신)
 
-    public static final int TYPE_LIBRARY_ENROLL_REQ = 8;  // 도서관 정보 등록 요청
-    public static final int TYPE_LIBRARY_ENROLL_RES = 9;  // 도서관 정보 등록 응답
-    public static final int TYPE_LABRARY_UPDATE_REQ = 10;  // 도서관 정보 수정 요청
-    public static final int TYPE_LABRARY_UPDATE_RES = 11;  // 도서관 정보 수정 응답
-    public static final int TYPE_LABRARY_DELETE_REQ = 12;  // 도서관 정보 삭제 요청
-    public static final int TYPE_LABRARY_DELETE_RES = 13;  // 도서관 정보 삭제 응답
-    public static final int TYPE_LABRARY_LIST_INFO_REQ = 14;  // 도서관 검색목록 조회 요청
-    public static final int TYPE_LABRARY_LIST_INFO_RES = 15;  // 도서관 검색목록 조회 응답
-    public static final int TYPE_LABRARY_DETAILS_INFO_REQ = 16;  // 도서관 세부정보 조회 요청
-    public static final int TYPE_LABRARY_DETAILS_INFO_RES = 17;  // 도서관 세부정보 조회 응답
+    public static final int TYPE_LABRARY_LIST_INFO_REQ = 6;  // 도서관 검색목록 조회 요청
+    public static final int TYPE_LABRARY_LIST_INFO_RES = 7;  // 도서관 검색목록 조회 응답
+    public static final int TYPE_LABRARY_DETAILS_INFO_REQ = 8;  // 도서관 세부정보 조회 요청
+    public static final int TYPE_LABRARY_DETAILS_INFO_RES = 9;  // 도서관 세부정보 조회 응답
 
-    public static final int TYPE_BOOK_ENROLL_REQ = 18; // 도서 정보 등록 요청
-    public static final int TYPE_BOOK_ENROLL_RES = 19; // 도서 정보 등록 응답
-    public static final int TYPE_BOOK_DELETE_REQ = 20; // 도서 정보 삭제 요청
-    public static final int TYPE_BOOK_DELETE_RES = 21; // 도서 정보 삭제 응답
-    public static final int TYPE_BOOK_UPDATE_REQ = 22; // 도서 정보 수정 요청
-    public static final int TYPE_BOOK_UPDATE_RES = 23; // 도서 정보 수정 응답
-    public static final int TYPE_BOOK_LIST_INFO_REQ = 24; // 도서 목록 조회 요청
-    public static final int TYPE_BOOK_LIST_INFO_RES = 25; // 도서 목록 조회 응답
-    public static final int TYPE_BOOK_DETAILS_INFO_REQ = 26; // 도서 세부정보 조회 요청
-    public static final int TYPE_BOOK_DETALES_INFO_RES = 27; // 도서 세부정보 조회 응답
+    public static final int TYPE_BOOK_LIST_INFO_REQ = 10; // 도서 목록 조회 요청
+    public static final int TYPE_BOOK_LIST_INFO_RES = 11; // 도서 목록 조회 응답
+    public static final int TYPE_BOOK_DETAILS_INFO_REQ = 12; // 도서 세부정보 조회 요청
+    public static final int TYPE_BOOK_DETALES_INFO_RES = 13; // 도서 세부정보 조회 응답
 
-    public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_REQ = 28; // 도서관 즐겨찾기 정보 등록 요청
-    public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_RES = 29; // 도서관 즐겨찾기 정보 등록 응답
-    public static final int TYPE_LABRARY_FAVORITEINFO_DELETE_REQ = 30; // 도서관 즐겨찾기 정보 삭제 요청
-    public static final int TYPE_LABRARY_FAVORITEINFO_DELETE_RES = 31; // 도서관 즐겨찾기 정보 삭제 응답
-    public static final int TYPE_LABRARY_FAVORITEINFO_INFO_REQ = 32; // 도서관 즐겨찾기 정보 조회 요청
-    public static final int TYPE_LABRARY_FAVORITEINFO_INFO_RES = 33; // 도서관 즐겨찾기 정보 조회 응답
-    public static final int TYPE_BOOK_FAVORITEINFO_ENROLL_REQ = 34; // 도서 즐겨찾기 정보 등록 요청
-    public static final int TYPE_BOOK_FAVORITEINFO_ENROLL_RES = 35; // 도서 즐겨찾기 정보 등록 응답
-    public static final int TYPE_BOOK_FAVORITEINFO_DELETE_REQ = 36; // 도서 즐겨찾기 정보 삭제 요청
-    public static final int TYPE_BOOK_FAVORITEINFO_DELETE_RES = 37; // 도서 즐겨찾기 정보 삭제 응답
-    public static final int TYPE_BOOK_FAVORITEINFO_INFO_REQ = 38; // 도서 즐겨찾기 정보 조회 요청
-    public static final int TYPE_BOOK_FAVORITEINFO_INFO_RES = 39; // 도서 즐겨찾기 정보 조회 응답
+    public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_REQ = 14; // 도서관 즐겨찾기 정보 등록 요청
+    public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_RES = 15; // 도서관 즐겨찾기 정보 등록 응답
+    public static final int TYPE_LABRARY_FAVORITEINFO_DELETE_REQ = 16; // 도서관 즐겨찾기 정보 삭제 요청
+    public static final int TYPE_LABRARY_FAVORITEINFO_DELETE_RES = 17; // 도서관 즐겨찾기 정보 삭제 응답
+    public static final int TYPE_LABRARY_FAVORITEINFO_INFO_REQ = 18; // 도서관 즐겨찾기 정보 조회 요청
+    public static final int TYPE_LABRARY_FAVORITEINFO_INFO_RES = 19; // 도서관 즐겨찾기 정보 조회 응답
+    public static final int TYPE_BOOK_FAVORITEINFO_ENROLL_REQ = 20; // 도서 즐겨찾기 정보 등록 요청
+    public static final int TYPE_BOOK_FAVORITEINFO_ENROLL_RES = 21; // 도서 즐겨찾기 정보 등록 응답
+    public static final int TYPE_BOOK_FAVORITEINFO_DELETE_REQ = 22; // 도서 즐겨찾기 정보 삭제 요청
+    public static final int TYPE_BOOK_FAVORITEINFO_DELETE_RES = 23; // 도서 즐겨찾기 정보 삭제 응답
 
-    public static final int TYPE_BOOK_BORROW_POSSIBILITY_REQ = 40; // 도서 대출가능 알림 요청
-    public static final int TYPE_BOOK_BORROW_POSSIBILITY_RES = 41; // 도서 대출가능 알림 응답
+    public static final int TYPE_BOOK_BORROW_POSSIBILITY_REQ = 24; // 도서 대출가능 알림 요청
+    public static final int TYPE_BOOK_BORROW_POSSIBILITY_RES = 25; // 도서 대출가능 알림 응답
 
 
 

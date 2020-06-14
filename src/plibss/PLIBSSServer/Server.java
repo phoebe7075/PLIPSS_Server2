@@ -135,11 +135,8 @@ public class Server {
 						case Protocol.TYPE_BOOK_FAVORITEINFO_DELETE_REQ:
 							deleteBookFavorite(protocol);
 							break;
-						case Protocol.TYPE_BOOK_FAVORITEINFO_INFO_REQ:
-							getBookFavorite(protocol);
-							break;
 						case Protocol.TYPE_BOOK_BORROW_POSSIBILITY_REQ:
-							//getBookPossibility(protocol);
+							getBookPossibility(protocol);
 							break;
 					}
 				}
@@ -224,26 +221,17 @@ public class Server {
 
 		//도서관 검색 정보 조회
 		private void getLibraryInfo(Protocol rcvData) throws IOException, SQLException, Exception{
+			System.out.println(userID + " 클라이언트 : 도서관 검색 메시지");
 			LibraryDAO libraryDAO = LibraryDAO.getInstance();
-			StringTokenizer token1 = new StringTokenizer((String) rcvData.getBody(),"/");
+			Library scondition = (Library) rcvData.getBody();
 			Library[] libraries1 = libraryDAO.getLibraries();
 			Vector<Library> arr = new Vector<Library>();
-			String[] scon= new String[4]; // /로 구분되는 정보
-			String[] key = new String[4];
-			String[] value = new String[4];
-			String[] context = new String[4];
-			int idx = 0;
-			while (token1.hasMoreTokens()) {
-				scon[idx] = token1.nextToken();
-				idx++;
-			}
 
-			for (int i =0; i < 4; i++)
-			{
-				StringTokenizer token2 = new StringTokenizer(scon[i],":");
-				key[i] = token2.nextToken();
-				value[i] = token2.nextToken();
-			}
+			String[] context = new String[4];
+			String[] value = new String[4];
+			value[0] = scondition.getLname(); value[1] = scondition.getCname(); value[2] = scondition.getDistrictname(); value[3] = scondition.getLtype();
+
+
 			for(Library lib : libraries1) //전체 도서관에서 한 도서관씩 정보를 찾는다.
 			{
 				context[0] = lib.getLname();
@@ -253,7 +241,7 @@ public class Server {
 
 				boolean isExist =true;
 				for (int i=0; i<4; i++) {
-					if (value != null) //상세조건을 기술한 조건에 대해 검색
+					if (value[i] != null) //상세조건을 기술한 조건에 대해 검색
 					{
 						Pattern pt = Pattern.compile(value[i],Pattern.CASE_INSENSITIVE ); //일부라도 일치하는 조건을 찾기 위함
 						Matcher ptmatcher = pt.matcher(context[i]);
@@ -278,6 +266,7 @@ public class Server {
 
 		//도서관 세부정보 조회
 		private void getLibraryDetailsInfo(Protocol rcvData) throws IOException, SQLException, Exception{
+			System.out.println(userID + " 클라이언트 : 도서관 세부정보 조회 메시지");
 			LibraryDAO libraryDAO = LibraryDAO.getInstance();
 			String lid = (String) rcvData.getBody();
 			Library library = libraryDAO.getLibrary(lid);
@@ -296,26 +285,15 @@ public class Server {
 
 		// 도서 검색정보 조회
 		private void getBookInfo(Protocol rcvData) throws IOException, SQLException, Exception{
+			System.out.println(userID + " 클라이언트 : 도서 검색 메시지");
 			BookDAO bookDAO = BookDAO.getInstance();
-			StringTokenizer token1 = new StringTokenizer((String) rcvData.getBody(),"/");
-
+			Book scondition = (Book) rcvData.getBody();
 			Vector<Book> arr = new Vector<Book>();
-			String[] scon= new String[4]; // /로 구분되는 정보
-			String[] key = new String[4];
 			String[] value = new String[4];
 			String[] context = new String[3]; //도서관 id는 제외함. 필요하지않음
-			int idx = 0;
-			while (token1.hasMoreTokens()) {
-				scon[idx] = token1.nextToken();
-				idx++;
-			}
+			value[0] = scondition.getLid(); value[1] = scondition.getBname(); value[2] = scondition.getAuthorn(); value[3] = scondition.getKdc();
 
-			for (int i =0; i < 4; i++)
-			{
-				StringTokenizer token2 = new StringTokenizer(scon[i],":");
-				key[i] = token2.nextToken();
-				value[i] = token2.nextToken();
-			}
+
 
 			Book[] books = bookDAO.getBooks(value[0]); // 첫번째 조건은 도서관id. 무조건 있어야 함. 그래서 나중 검색에도 제외됨
 
@@ -327,7 +305,7 @@ public class Server {
 				boolean isExist =true;
 
 				for (int i=0; i<3; i++) {
-					if (value != null) //상세조건을 기술한 조건에 대해 검색
+					if (value[i+1] != null) //상세조건을 기술한 조건에 대해 검색
 					{
 						Pattern pt = Pattern.compile(value[i+1],Pattern.CASE_INSENSITIVE); //일부라도 일치하는 조건을 찾기 위함
 						Matcher ptmatcher = pt.matcher(context[i]);
@@ -351,6 +329,7 @@ public class Server {
 
 		// 도서 세부정보 조회
 		private void getBookDetailsInfo(Protocol rcvData) throws IOException, SQLException, Exception{
+			System.out.println(userID + " 클라이언트 : 도서 세부정보 조회 메시지");
 			BookDAO bookDAO = BookDAO.getInstance();
 			Book bk1 = (Book) rcvData.getBody();
 
@@ -371,6 +350,7 @@ public class Server {
 
 		// 도서관 즐겨찾기 추가
 		private void createLibFavorite(Protocol rcvData) throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 도서관 즐겨찾기 추가 메시지");
 			Libraryf lif = new Libraryf();
 			lif= (Libraryf) rcvData.getBody();
 
@@ -391,6 +371,7 @@ public class Server {
 
 		// 도서관 즐겨찾기 제거
 		private void deleteLibFavorite(Protocol rcvData) throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 도서관 즐겨찾기 제거 메시지");
 			LibraryfDAO DAO = LibraryfDAO.getInstance();
 			Libraryf lif = (Libraryf) rcvData.getBody();
 
@@ -409,6 +390,7 @@ public class Server {
 
 		// 도서관 즐겨찾기 정보 조회
 		private void getLibFavorites(Protocol rcvData) throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 도서관 즐겨찾기 정보 조회 메시지");
 			LibraryfDAO DAO = LibraryfDAO.getInstance();
 			Libraryf[] libraryfs = DAO.getFavorites(userID);
 
@@ -421,11 +403,11 @@ public class Server {
 			Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_FAVORITEINFO_INFO_RES,1);
 			sndData.setBody(libraryfs);
 			os.write(sndData.getPacket());
-
 		}
 
 		// 도서 즐겨찾기 정보 등록
 		private void createBookFavorite(Protocol rcvData)throws IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 도서 즐겨찾기 등록 메시지");
 			Bookf bookf = new Bookf();
 			bookf = (Bookf) rcvData.getBody();
 
@@ -444,6 +426,7 @@ public class Server {
 
 		// 도서 즐겨찾기 정보 삭제
 		private void deleteBookFavorite(Protocol rcvData) throws IOException, SQLException, Exception{
+			System.out.println(userID + " 클라이언트 : 도서 즐겨찾기 삭제 메시지");
 			Bookf bookf = new Bookf();
 			bookf = (Bookf) rcvData.getBody();
 
@@ -461,26 +444,22 @@ public class Server {
 			os.write(sndData.getPacket());
 		}
 
-		private void getBookFavorite(Protocol rcvData)  throws IOException, SQLException, Exception {
-			BookfDAO DAO = BookfDAO.getInstance();
-			Bookf[] bookfs = DAO.getFavorites(userID);
 
-			if(bookfs.length == 0)
-			{
-				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_INFO_RES,0);
-				os.write(sndData.getPacket());
-				return;
-			}
-			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_FAVORITEINFO_INFO_RES,1);
-			sndData.setBody(bookfs);
-			os.write(sndData.getPacket());
-		}
-
+		// 대출 알림 알고리즘
 		private void getBookPossibility(Protocol rcvData) throws  IOException, SQLException, Exception {
+			System.out.println(userID + " 클라이언트 : 대출가능 정보 메시지");
 			BorrowDAO borrowDAO = BorrowDAO.getInstance();
 			BookfDAO bookfDAO = BookfDAO.getInstance();
 
 			Bookf[] bookfs = bookfDAO.getFavorites(userID);
+
+
+			if(bookfs.length == 0)
+			{
+				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_BORROW_POSSIBILITY_RES,0);
+				os.write(sndData.getPacket());
+				return;
+			}
 
 			int idx = 0;
 			for(Bookf bf : bookfs)
@@ -496,7 +475,8 @@ public class Server {
 				idx++;
 			}
 			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_BORROW_POSSIBILITY_RES,1);
-
+			sndData.setBody(bookfs);
+			os.write(sndData.getPacket());
 		}
 	}
 }
