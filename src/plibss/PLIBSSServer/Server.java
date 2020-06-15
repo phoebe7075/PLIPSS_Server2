@@ -196,7 +196,7 @@ public class Server {
 			ResultSet rs = mysql.select();
 			Protocol sndData = new Protocol(Protocol.TYPE_LOGIN_RES);
 
-			if (rs.next() && rs.getString("패스워드").equals(str[0])) //아이디가 존재하고 패스워드도 일치할 경우
+			if (rs.next() && rs.getString("패스워드").equals(str[1])) //아이디가 존재하고 패스워드도 일치할 경우
 			{
 				this.userID = rs.getString("아이디");
 				sndData.setCode(1);
