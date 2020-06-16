@@ -61,11 +61,11 @@ public class BorrowDAO {
         mysql.set(3,"대출중");
         ResultSet rs = mysql.select();
 
-        if (rs.getString("현재상태") == "대출중")
-        {
-            return false;
+        while(rs.next()) {
+            if (rs.getString("현재상태") == "대출중") {
+                return false;
+            }
         }
-
         return true;
 
 
