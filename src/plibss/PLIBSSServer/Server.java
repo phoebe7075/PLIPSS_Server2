@@ -293,8 +293,6 @@ public class Server {
 			String[] context = new String[3]; //도서관 id는 제외함. 필요하지않음
 			value[0] = scondition.getLid(); value[1] = scondition.getBname(); value[2] = scondition.getAuthorn(); value[3] = scondition.getKdc();
 
-
-
 			Book[] books = bookDAO.getBooks(value[0]); // 첫번째 조건은 도서관id. 무조건 있어야 함. 그래서 나중 검색에도 제외됨
 
 			for (Book bk : books)
