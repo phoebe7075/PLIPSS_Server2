@@ -19,7 +19,7 @@ public class Mysql {
 	private Mysql()	throws SQLException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection("jdbc:mysql://localhost", "root", "apdlvmf1");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/plipss?characterEncoding=utf8&serverTimezone=UTC&useSSL=false", "root", "apdlvmf1");
 		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
