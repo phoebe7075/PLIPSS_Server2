@@ -278,7 +278,7 @@ public class Server {
 				return;
 			}
 
-			Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_DETAILS_INFO_RES);
+			Protocol sndData = new Protocol(Protocol.TYPE_LABRARY_DETAILS_INFO_RES, 1);
 			sndData.setBody(library);
 			os.write(sndData.getPacket());
 		}
