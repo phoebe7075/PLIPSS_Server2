@@ -46,7 +46,7 @@ public class BookDAO {
     //도서관id, 도서이름으로 도서 상세정보 찾기
     public Book getBook(String lid, String bn) throws IOException, SQLException, Exception {
         Mysql mysql = Mysql.getConnection();
-        mysql.sql(SQL_SELECT + "WHERE `도서관id` = ? AND `도서명` = ?");
+        mysql.sql(SQL_SELECT + "WHERE `도서관id` = ? AND `도서명` = ? LIMIT 1");
         mysql.set(1,lid);
         mysql.set(2,bn);
         ResultSet rs = mysql.select();

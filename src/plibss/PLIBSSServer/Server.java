@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -94,7 +96,6 @@ public class Server {
 						}
 					}
 					protocol.setPacketBody(buf);
-
 					switch (protocol.getType()) {
 						case Protocol.TYPE_UNDEFINED:
 							ping();
@@ -191,24 +192,29 @@ public class Server {
 			System.out.println(userID + " 클라이언트 : 로그인 메시지");
 			String[] str = (String[]) rcvData.getBody();
 			Mysql mysql = Mysql.getConnection();
-			mysql.sql("SELECT `아이디`, `패스워드`, `이름` FROM `유저` WHERE `아이디` = ?");
+			mysql.sql("SELECT * FROM `유저` WHERE `사용자id` = ?");
 			mysql.set(1, str[0]);
 			ResultSet rs = mysql.select();
-			Protocol sndData = new Protocol(Protocol.TYPE_LOGIN_RES);
 
-			if (rs.next() && rs.getString("패스워드").equals(str[1])) //아이디가 존재하고 패스워드도 일치할 경우
-			{
-				this.userID = rs.getString("아이디");
-				sndData.setCode(1);
-				sndData.setBody(null);
-			}
-			else
-			{
-				sndData.setCode(0);
-				sndData.setBody(null);
+			String[] user = new String[2];
+			while (rs.next()){
+				user[0] = rs.getString("사용자id"); user[1] =  rs.getString("패스워드");
 			}
 
-			os.write(sndData.getPacket());
+
+			if (user[1].equals(str[1])) //아이디가 존재하고 패스워드도 일치할 경우
+			{
+					this.userID = user[0];
+					Protocol sndData = new Protocol(Protocol.TYPE_LOGIN_RES,1);
+					os.write(sndData.getPacket());
+			}
+			else {
+					Protocol sndData = new Protocol(Protocol.TYPE_LOGIN_RES,0);
+					os.write(sndData.getPacket());
+			}
+
+
+
 		}
 
 		private void logout(Protocol rcvData) throws IOException, SQLException, Exception {
@@ -305,12 +311,24 @@ public class Server {
 				for (int i=0; i<3; i++) {
 					if (value[i+1] != null) //상세조건을 기술한 조건에 대해 검색
 					{
-						Pattern pt = Pattern.compile(value[i+1],Pattern.CASE_INSENSITIVE); //일부라도 일치하는 조건을 찾기 위함
-						Matcher ptmatcher = pt.matcher(context[i]);
-						if(!ptmatcher.find()) //만약 적은 검색조건에서 하나라도 맞는 칼럼이 존재하지 않는다면
+						if (i != 2) {
+							Pattern pt = Pattern.compile(value[i + 1], Pattern.CASE_INSENSITIVE); //일부라도 일치하는 조건을 찾기 위함
+							Matcher ptmatcher = pt.matcher(context[i]);
+							if (!ptmatcher.find()) //만약 적은 검색조건에서 하나라도 맞는 칼럼이 존재하지 않는다면
+							{
+								isExist = false;
+								break; //조건문 종료
+							}
+						}
+						else
 						{
-							isExist = false;
-							break; //조건문 종료
+							String[] firstkdc = context[2].split("\\.");
+							int k = Integer.parseInt(firstkdc[0]) / 100;
+							if (!Integer.toString(k).equals(value[i+1]))
+							{
+								isExist = false;
+								break; //조건문 종료
+							}
 						}
 					}
 				}
@@ -335,11 +353,11 @@ public class Server {
 
 			if(bk2 == null) // 도서 정보가 존재하지 않을 때
 			{
-				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_DETALES_INFO_RES, 0);
+				Protocol sndData = new Protocol(Protocol.TYPE_BOOK_DETAILS_INFO_RES, 0);
 				os.write(sndData.getPacket());
 				return;
 			}
-			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_DETALES_INFO_RES,1);
+			Protocol sndData = new Protocol(Protocol.TYPE_BOOK_DETAILS_INFO_RES,1);
 			sndData.setBody(bk2);
 			os.write(sndData.getPacket());
 		}

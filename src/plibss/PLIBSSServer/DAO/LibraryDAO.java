@@ -64,7 +64,7 @@ public class LibraryDAO {
     // 도서관 세부정보 조회
     public Library getLibrary(String lid) throws IOException, SQLException, Exception {
         Mysql mysql = Mysql.getConnection();
-        mysql.sql(SQL_SELECT + "WHERE `도서관id` = ?");
+        mysql.sql(SQL_SELECT + "WHERE `도서관id` = ? LIMIT 1");
         mysql.set(1, lid);
         ResultSet resultSet = mysql.select();
         while (resultSet.next()) {

@@ -1,11 +1,11 @@
 package plibss.core;
 
+import plibss.core.model.Book;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-
 
 
 public class Protocol {
@@ -31,7 +31,7 @@ public class Protocol {
     public static final int TYPE_BOOK_LIST_INFO_REQ = 10; // 도서 목록 조회 요청
     public static final int TYPE_BOOK_LIST_INFO_RES = 11; // 도서 목록 조회 응답
     public static final int TYPE_BOOK_DETAILS_INFO_REQ = 12; // 도서 세부정보 조회 요청
-    public static final int TYPE_BOOK_DETALES_INFO_RES = 13; // 도서 세부정보 조회 응답
+    public static final int TYPE_BOOK_DETAILS_INFO_RES = 13; // 도서 세부정보 조회 응답
 
     public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_REQ = 14; // 도서관 즐겨찾기 정보 등록 요청
     public static final int TYPE_LABRARY_FAVORITEINFO_ENROLL_RES = 15; // 도서관 즐겨찾기 정보 등록 응답

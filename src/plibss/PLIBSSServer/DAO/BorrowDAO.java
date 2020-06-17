@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
 public class BorrowDAO {
-    private static final String SQL_SELECT = "SELECT 사용자id, 도서관id, 도서명, CAST(대출일시 AS CHAR) AS 대출일시, CAST(반납일시 AS CHAR) AS 반납일시, 현재상태 FROM `대출정보`";
+    private static final String SQL_SELECT = "SELECT * FROM `대출 정보`";
     private BorrowDAO() {}
     private static class LazyHolder {
         public static final BorrowDAO INSTANCE = new BorrowDAO();
@@ -62,7 +62,8 @@ public class BorrowDAO {
         ResultSet rs = mysql.select();
 
         while(rs.next()) {
-            if (rs.getString("현재상태") == "대출중") {
+            String state = rs.getString("현재상태");
+            if (state.equals("대출중")) {
                 return false;
             }
         }
